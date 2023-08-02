@@ -177,22 +177,76 @@ db.Alquiler.aggregate([
   },
 ]);
 
-db.Alquiler.find({"ID_Alquiler": 1}, {"Costo_Total": 1})
+db.Alquiler.find({ ID_Alquiler: 1 }, { Costo_Total: 1 });
 
 db.Alquiler.aggregate([
-  {$lookup: {
-    from: "Automovil",
-    localField: "ID_Automovil",
-    foreignField: "ID_Automovil",
-    as: "autoId"
-  }},
-  {$lookup: {
-    from: "Cliente",
-    localField: "ID_Cliente",
-    foreignField: "ID_Cliente",
-    as: "clienteID"
-  }},
-  {$match: {
-    Fecha_Inicio:"1"
-  }}
-])
+  {
+    $lookup: {
+      from: "Automovil",
+      localField: "ID_Automovil",
+      foreignField: "ID_Automovil",
+      as: "autoId",
+    },
+  },
+  {
+    $lookup: {
+      from: "Cliente",
+      localField: "ID_Cliente",
+      foreignField: "ID_Cliente",
+      as: "clienteID",
+    },
+  },
+  {
+    $match: {
+      Fecha_Inicio: "1",
+    },
+  },
+]);
+
+db.Reserva.aggregate([
+  {
+    $lookup: {
+      from: "Automovil",
+      localField: "ID_Automovil",
+      foreignField: "ID_Automovil",
+      as: "autoID",
+    },
+  },
+  {
+    $lookup: {
+      from: "Cliente",
+      localField: "ID_Cliente",
+      foreignField: "ID_Cliente",
+      as: "ClienteID",
+    },
+  },
+  {
+    $match: {
+      Estado: "Pendiente",
+    },
+  },
+]);
+
+db.Reserva.aggregate([
+  {
+    $lookup: {
+      from: "Automovil",
+      localField: "ID_Automovil",
+      foreignField: "ID_Automovil",
+      as: "autoID",
+    },
+  },
+  {
+    $lookup: {
+      from: "Cliente",
+      localField: "ID_Cliente",
+      foreignField: "ID_Cliente",
+      as: "ClienteID",
+    },
+  },
+  {
+    $match: {
+      DNI: "123456789",
+    },
+  },
+]);
