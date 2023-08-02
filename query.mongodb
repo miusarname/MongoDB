@@ -1,0 +1,198 @@
+use("db_campus_alquiler");
+db.Cliente.insertMany([
+  {
+    ID_Cliente: 1,
+    Nombre: "Juan",
+    Apellido: "Perez",
+    DNI: "12345678",
+    Direccion: "Calle 123",
+    Telefono: "11111111",
+    Email: "juan@example.com",
+  },
+  {
+    ID_Cliente: 2,
+    Nombre: "Maria",
+    Apellido: "Lopez",
+    DNI: "87654321",
+    Direccion: "Avenida 456",
+    Telefono: "22222222",
+    Email: "maria@example.com",
+  },
+]);
+
+db.Automovil.insertMany([
+  {
+    ID_Automovil: 1,
+    Marca: "Toyota",
+    Modelo: "Corolla",
+    Anio: 2021,
+    Tipo: "Sedan",
+    Capacidad: 5,
+    Precio_Diario: 50.0,
+  },
+  {
+    ID_Automovil: 2,
+    Marca: "Honda",
+    Modelo: "Civic",
+    Anio: 2020,
+    Tipo: "Sedan",
+    Capacidad: 5,
+    Precio_Diario: 45.0,
+  },
+]);
+
+db.Alquiler.insertMany([
+  {
+    ID_Alquiler: 1,
+    ID_Cliente: 1,
+    ID_Automovil: 3,
+    Fecha_Inicio: ISODate("2023-07-01"),
+    Fecha_Fin: ISODate("2023-07-05"),
+    Costo_Total: 240.0,
+    Estado: "Activo",
+  },
+  {
+    ID_Alquiler: 2,
+    ID_Cliente: 2,
+    ID_Automovil: 4,
+    Fecha_Inicio: ISODate("2023-07-02"),
+    Fecha_Fin: ISODate("2023-07-07"),
+    Costo_Total: 275.0,
+    Estado: "Disponible",
+  },
+]);
+
+db.Reserva.insertOne({
+  ID_Reserva: 3,
+  ID_Cliente: 1,
+  ID_Automovil: 1,
+  Fecha_Reserva: ISODate("2023-07-07"),
+  Fecha_Inicio: ISODate("2023-07-07"),
+  Fecha_Fin: ISODate("2023-07-07"),
+  Estado: "Disponible",
+});
+db.Sucursal.insertOne({
+  ID_Sucursal: 1,
+  Nombre: "asdasdasd",
+  Direccion: "cll",
+  Telefono: "123346677",
+});
+db.Sucursal_Automovil.insertOne({
+  ID_Sucursal: 22,
+  ID_Automovil: 2,
+  Cantidad_Disponible: 1,
+});
+db.Empleado.insertOne({
+  ID_Empleado: 10,
+  Nombre: "aa",
+  Apellido: "a",
+  DNI: "1099737011",
+  Direccion: "cll3",
+  Telefono: "12346",
+  Cargo: "Asistente",
+});
+db.Registro_Entrega.insertOne({
+  ID_Registro: 1,
+  ID_Alquiler: 15,
+  ID_Empleado: 10,
+  Fecha_Entrega: ISODate("2023-07-07"),
+  Combustible_Entregado: 10000.02,
+  Kilometraje_Entregado: 10,
+});
+db.Registro_Devolucion.insertOne({
+  ID_Registro: 1,
+  ID_Alquiler: 1,
+  ID_Empleado: 10,
+  Fecha_Devolucion: ISODate("2023-07-07"),
+  Combustible_Devuelto: 10000.02,
+  Kilometraje_Devuelto: 20,
+  Monto_Adicional: 100000000002,
+});
+
+//consultas de filtro
+db.Cliente.find();
+
+db.Cliente.find({ DNI: { $eq: "12345678" } });
+
+db.Automovil.find();
+
+db.Automovil.find({ Capacidad: { $gt: 5 } });
+
+db.Empleado.find({ Cargo: { $eq: "Vendedor" } });
+
+db.Empleado.find({
+  $or: [{ Cargo: "Gerente" }, { Cargo: "Asistente" }],
+});
+
+db.Alquiler.aggregate([
+  {
+    $lookup: {
+      from: "Automovil",
+      localField: "ID_Automovil",
+      foreignField: "ID_Automovil",
+      as: "automovil",
+    },
+  },
+  {
+    $lookup: {
+      from: "Cliente",
+      localField: "ID_Cliente",
+      foreignField: "ID_Cliente",
+      as: "Cliente",
+    },
+  },
+  {
+    $match: {
+      Estado: "Activo",
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+    },
+  },
+]);
+
+db.Alquiler.aggregate([
+  {
+    $lookup: {
+      from: "Automovil",
+      localField: "ID_Automovil",
+      foreignField: "ID_Automovil",
+      as: "Auto",
+    },
+  },
+  {
+    $lookup: {
+      from: "Cliente",
+      localField: "ID_Cliente",
+      foreignField: "ID_Cliente",
+      as: "Cliente",
+    },
+  },
+  {
+    $match: {
+      $and: [{ Estado: "Activo" }, { ID_Alquiler: 2 }],
+    },
+  },
+]);
+
+db.Alquiler.find({"ID_Alquiler": 1}, {"Costo_Total": 1})
+
+db.Alquiler.aggregate([
+  {$lookup: {
+    from: "Automovil",
+    localField: "ID_Automovil",
+    foreignField: "ID_Automovil",
+    as: "autoId"
+  }},
+  {$lookup: {
+    from: "Cliente",
+    localField: "ID_Cliente",
+    foreignField: "ID_Cliente",
+    as: "clienteID"
+  }},
+  {$match: {
+    Fecha_Inicio:"1"
+  }}
+])
